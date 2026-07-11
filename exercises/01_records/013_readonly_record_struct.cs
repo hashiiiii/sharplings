@@ -7,8 +7,8 @@
 //     any time. If you want the record-class-style guarantee that a
 //     value never changes after construction, add `readonly`:
 //     `readonly record struct` turns every positional property back
-//     into a get-only member, so only `with` can produce a changed
-//     value.
+//     into an init-only `{ get; init; }` member, so after construction
+//     only `with` can produce a changed value.
 // JA: 「デフォルトで mutable」という驚きがあります。`record class` の
 //     positional プロパティは `{ get; init; }`（構築時か `with` でしか
 //     設定できません）なのに対し、ただの `record struct` の positional
@@ -16,7 +16,8 @@
 //     なプロパティです。record class と同じように「構築後は値が変わら
 //     ない」という保証がほしい場合は `readonly` を付けます。
 //     `readonly record struct` にすると、すべての positional プロパティ
-//     が get のみに戻り、値を変えられるのは `with` だけになります。
+//     が init のみの `{ get; init; }` に戻り、構築後に値を変えられるのは
+//     `with` だけになります。
 //
 // Unity note:
 // EN: You've already met this rule without the "record" part: writing
@@ -44,14 +45,16 @@ readonly record struct Health(int Current, int Max);
 
 // HINT EN: `hp.Current = 60;` would compile for a plain, mutable
 //          record struct, but `Health` is declared `readonly` here —
-//          `Current` has no setter at all. Replace the direct
-//          assignment with a non-destructive `with` expression that
-//          reassigns `hp` to the new value it produces.
+//          `Current` is init-only, settable just at initialization or
+//          through `with`. Replace the direct assignment with a
+//          non-destructive `with` expression that reassigns `hp` to
+//          the new value it produces.
 // HINT JA: `hp.Current = 60;` は普通の mutable な record struct なら
 //          コンパイルが通りますが、ここでの `Health` は `readonly` で
-//          宣言されており `Current` に setter はありません。直接代入を、
-//          新しい値を生成する非破壊的な `with` 式に置き換え、その結果を
-//          `hp` へ再代入してください。
+//          宣言されており `Current` は init のみ（初期化時か `with` で
+//          しか設定できません）です。直接代入を、新しい値を生成する
+//          非破壊的な `with` 式に置き換え、その結果を `hp` へ再代入
+//          してください。
 //
 // EXPECTED OUTPUT:
 // Health { Current = 60, Max = 100 }
