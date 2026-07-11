@@ -20,10 +20,24 @@ public sealed class ProgressCache(string cachePath)
         File.WriteAllText(cachePath, JsonSerializer.Serialize(_passed, JsonOptions));
     }
 
-    private static Dictionary<string, string> Load(string path) =>
-        File.Exists(path)
-            ? JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? []
-            : [];
+    private static Dictionary<string, string> Load(string path)
+    {
+        if (!File.Exists(path))
+            return [];
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(path)) ?? [];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            // File.WriteAllText is not atomic: a Ctrl-C (or crash) mid-write
+            // can leave a truncated/corrupted cache file behind. Treat that
+            // as an empty cache instead of crashing every future run — the
+            // next MarkPassed call rewrites a valid file.
+            return [];
+        }
+    }
 
     private static string HashOf(Exercise exercise) =>
         Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(exercise.AbsolutePath)));

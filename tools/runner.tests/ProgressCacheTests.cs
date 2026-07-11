@@ -46,4 +46,23 @@ public class ProgressCacheTests
         File.WriteAllText(exercise.AbsolutePath, "// v2");
         Assert.False(cache.IsPassed(exercise));
     }
+
+    [Fact]
+    public void Corrupted_cache_file_is_treated_as_empty()
+    {
+        // File.WriteAllText is not atomic, so a Ctrl-C mid-write (or a
+        // crash) can leave .sharplings-cache.json truncated. The cache
+        // should heal itself instead of crashing every future run.
+        var (exercise, root) = MakeExercise("// v1");
+        string cachePath = Path.Combine(root, "cache.json");
+        File.WriteAllText(cachePath, "{ \"half");
+
+        var cache = new ProgressCache(cachePath);
+        Assert.False(cache.IsPassed(exercise));
+
+        // Writing through the healed cache should work and produce a
+        // valid file again.
+        cache.MarkPassed(exercise);
+        Assert.True(new ProgressCache(cachePath).IsPassed(exercise));
+    }
 }
