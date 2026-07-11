@@ -9,7 +9,7 @@
 //     wildcard `_` arm that leaves the state unchanged for any
 //     combination the table doesn't list.
 // JA: 構文としては新しいものはありません。すでに知っている switch 式と
-//     tuple パターンを、よく使う形— 有限状態機械（FSM）— に当てはめる
+//     tuple パターンを、よく使う形 — 有限状態機械（FSM） — に当てはめる
 //     回です。おなじみの `if (state == X && trigger == Y) state = Z;
 //     else if (...)` の連鎖は、`(state, trigger)` という tuple を
 //     遷移テーブルと照合する 1 つの switch 式になります。テーブルの
