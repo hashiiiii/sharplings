@@ -20,11 +20,11 @@
 // Unity note:
 // EN: Unity-generated .csproj files predate this SDK default and don't
 //     enable it, which is why Unity scripts still spell out
-//     `using System.Linq;` / `using System.Collections;` even though a
+//     `using System.Linq;` / `using System.Collections.Generic;` even though a
 //     plain .NET 10 console app already gets those for free.
 // JA: Unity が生成する .csproj はこの SDK のデフォルト設定より古く、
 //     ImplicitUsings を有効にしていません。素の .NET 10 コンソールアプリ
-//     では不要な `using System.Linq;` / `using System.Collections;` を
+//     では不要な `using System.Linq;` / `using System.Collections.Generic;` を
 //     Unity のスクリプトでは今も書く必要があるのはこのためです。
 //
 // Docs: https://learn.microsoft.com/dotnet/core/project-sdk/overview#implicit-using-directives
