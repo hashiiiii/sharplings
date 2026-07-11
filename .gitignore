@@ -1,0 +1,14 @@
+# .NET
+bin/
+obj/
+.sharplings-cache.json
+.DS_Store
+
+# Unity (project lives under unity/)
+unity/Library/
+unity/Temp/
+unity/Logs/
+unity/UserSettings/
+unity/obj/
+unity/*.sln
+unity/*.csproj
