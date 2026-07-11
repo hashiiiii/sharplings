@@ -46,6 +46,7 @@ Status legend used in the `Mono editor/player` column:
 | `field` keyword (C# 14) | unverified (probe: Stage 0) | Working | untested | Yes — official | Exercised in `05_types`. |
 | Null-conditional assignment (C# 14) | unverified (probe: Stage 0) | Working | untested | Yes — official | Exercised in `08_extensions`. |
 | `nameof` improvements — unbound generic types (C# 14) | unverified (probe: Stage 0) | Working | untested | Yes — official | Exercised in `05_types`. |
+| First-class span conversions (C# 14) | unverified (probe: Stage 0) | Working | untested | Yes — official | Compile-time-only conversion, resolved entirely by the compiler — needs nothing new from the runtime. Exercised in `07_performance` (`075_first_class_spans.cs`). |
 | **Needs PolySharp polyfill** | — | — | — | — | — |
 | Required members (C# 11) | unverified (probe: Stage 0) | Needs PolySharp | untested | Yes — official (PolySharp no longer needed) | Exercised in `05_types`. Needs PolySharp's `[RequiredMember]` / `[SetsRequiredMembers]` / `[CompilerFeatureRequired]` shims — see `unity-lab-setup.md` section 6. |
 | Interpolated string handlers (C# 10) | unverified (probe: Stage 0) | Needs PolySharp | untested | Yes — official (PolySharp no longer needed) | Needs PolySharp's `[InterpolatedStringHandler]` / `[InterpolatedStringHandlerArgument]` shims. |

@@ -71,7 +71,7 @@ So the fastest way to actually learn C# 10-14 today is a plain .NET 10 console e
 
 ## 4. How to work
 
-**EN:** From anywhere inside the repo:
+**EN:** From the repo root:
 
 ```
 dotnet run --project tools/runner
@@ -88,7 +88,7 @@ Solutions are intentionally not included in this repo. If you get stuck, work th
 3. Follow the `Docs:` link.
 4. Ask an AI — last resort, not first.
 
-**JA:** repo 内のどこからでも:
+**JA:** リポジトリのルートから:
 
 ```
 dotnet run --project tools/runner
@@ -141,7 +141,7 @@ runner は `exercises/` を順番に走査し、最初に通らない exercise �
 
 ## 6. Unity side
 
-**EN:** The Unity project itself (`unity/`) doesn't exist in this repo yet — you create it via Unity Hub (Unity 6000.7.0a2 or later). Scripts, `asmdef` files, `csc.rsp`, and docs get added on top once it exists. Two docs arriving in a follow-up task are the entry points once that lands:
+**EN:** The Unity project itself (`unity/`) doesn't exist in this repo yet — you create it via Unity Hub (Unity 6000.7.0a2 or later). Scripts, `asmdef` files, `csc.rsp`, and docs get added on top once it exists. Two docs already in this repo are the Unity-side entry points once that lands:
 
 - `docs/unity-lab-setup.md` — setup steps for the unofficial-trick lab that lets modern C# syntax compile inside Unity today.
 - `docs/feature-matrix.md` — a living table of which language features actually run where (Mono editor / CoreCLR player / future 6.8), updated as Lab experiments produce results.
@@ -151,7 +151,7 @@ Two zones are planned under `Assets/`:
 - **`Contrasts/<topic>/`** — official, no-tricks-required Before/After pairs. `Before/` holds the C# 9 Unity idiom (compiles today, on 6.7). `After~/` holds the modern-C# rewrite. Note the trailing `~`: folders and files ending in `~` are invisible to Unity's compilation pipeline (the same convention Unity itself uses for hidden folders), so `After~/` sits in the project without touching today's build. When Unity 6.8 ships C# 14 support, you rename `After~/` to `After/` and it goes live as-is.
 - **`Lab/`** — an experimental zone, isolated in its own `asmdef` with a local `csc.rsp`, for pushing past what Unity 6.7 officially supports, using the tricks documented in `unity-lab-setup.md`.
 
-**JA:** Unity project 自体（`unity/`）は、この repo にはまだ存在しません。Unity Hub で作成します（Unity 6000.7.0a2 以降）。スクリプト・`asmdef`・`csc.rsp`・docs は、それができてから追加で載せます。それが来たときの入り口となるのは、後続タスクで追加される次の 2 つの docs です。
+**JA:** Unity project 自体（`unity/`）は、この repo にはまだ存在しません。Unity Hub で作成します（Unity 6000.7.0a2 以降）。スクリプト・`asmdef`・`csc.rsp`・docs は、それができてから追加で載せます。それが来たときの Unity 側の入り口となるのは、この repo に既にある次の 2 つの docs です。
 
 - `docs/unity-lab-setup.md` —— 今日の Unity 内で最新 C# 構文をコンパイルできるようにする、非公式の裏技 lab の setup 手順。
 - `docs/feature-matrix.md` —— どの言語機能がどこで実際に動くか（Mono editor / CoreCLR player / 将来の 6.8）を記録し続ける表。Lab の実験結果で更新されていきます。
@@ -163,7 +163,7 @@ Two zones are planned under `Assets/`:
 
 ## 7. Runner reference
 
-**EN:**
+**EN:** Run from the repo root — `--project` is resolved relative to your current directory, so the command below only works as written from there:
 
 ```
 dotnet run --project tools/runner [--root <path>] [--no-cache] [--verify-broken]
@@ -183,7 +183,7 @@ Each exercise runs under a 10-second timeout (catches infinite loops).
 - `1` — normal mode: stopped at the first failing exercise. `--verify-broken`: one or more violations found.
 - `2` — usage error (unrecognized flag, or `--root` given without a value).
 
-**JA:**
+**JA:** リポジトリのルートから実行してください —— `--project` は現在のディレクトリからの相対パスとして解決されるため、下のコマンドはそこから実行した場合にのみそのまま動きます:
 
 ```
 dotnet run --project tools/runner [--root <path>] [--no-cache] [--verify-broken]

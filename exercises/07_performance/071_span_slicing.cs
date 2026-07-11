@@ -37,7 +37,8 @@
 //     *is* still catching up to 6.8 is coverage — some newer BCL
 //     method overloads that accept a span as an argument (rather than
 //     just producing one, as here) are missing from Unity's older BCL
-//     surface; see docs/feature-matrix.md for specifics.
+//     surface; that broader span-accepting BCL surface arrives with
+//     Unity 6.8's .NET 10 BCL.
 // JA: Unity の現行の Mono / IL2CPP ランタイムはすでに `Span<T>` を
 //     出荷済みです（netstandard2.1 が来て以来ずっと）。そのため下の
 //     `.AsSpan()` と `.Slice(...)` は今日の Unity プロジェクトでも
@@ -50,8 +51,8 @@
 //     6.8 でまだ追いついていないのは「網羅性」の方です — span を
 //     *受け取る*（ここでのように span を生み出すのではなく）新しい
 //     BCL のオーバーロードの一部が、Unity の古い BCL 表面には
-//     まだ存在しません。詳細は docs/feature-matrix.md を参照して
-//     ください。
+//     まだ存在しません。この広い意味での span を受け取る BCL
+//     オーバーロードの網羅は、Unity 6.8 の .NET 10 BCL で届きます。
 //
 // Docs: https://learn.microsoft.com/en-us/dotnet/api/system.memoryextensions.asspan
 
