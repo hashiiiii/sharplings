@@ -34,9 +34,11 @@ public sealed class DotnetRunner(TimeSpan timeout)
         {
             await process.WaitForExitAsync(cts.Token);
         }
-        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        catch (OperationCanceledException)
         {
             process.Kill(entireProcessTree: true);
+            if (ct.IsCancellationRequested)
+                throw;
             return new RunResult(Verdict.Timeout, await stdoutTask, await stderrTask, -1);
         }
 
