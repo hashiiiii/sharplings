@@ -1,6 +1,6 @@
 // [C# 13] params collections
 //
-// EN: Since C# 2, `params T[] values` has let callers pass a comma-
+// EN: Since C# 1, `params T[] values` has let callers pass a comma-
 //     separated argument list without building the array themselves —
 //     but the compiler still builds that array, on the heap, on every
 //     call. C# 13 extends `params` to other collection types, including
@@ -9,7 +9,7 @@
 //     case the compiler can hand the method a stack-allocated span
 //     instead of a heap array — the calling convention you already
 //     know, without the hidden allocation.
-// JA: C# 2 以降、`params T[] values` は呼び出し側が配列を自分で組み立て
+// JA: C# 1 以降、`params T[] values` は呼び出し側が配列を自分で組み立て
 //     ることなくカンマ区切りの引数リストを渡せるようにしてきましたが、
 //     コンパイラは呼び出しのたびにヒープ上へその配列を組み立てて
 //     いました。C# 13 では `params` を他のコレクション型にも拡張して
