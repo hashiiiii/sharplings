@@ -9,16 +9,32 @@
 **EN:** Two unofficial tricks unlock newer C# syntax in this same editor install, at increasing levels of risk:
 
 - **Stage 1** (non-invasive, this folder) -- `csc.rsp` (`-langversion:preview`) raises the language version Unity's own bundled Roslyn accepts, scoped to this one assembly, without touching the editor install. This is what `ProbeRawStrings.cs` and `ProbeCollectionExpressions.cs` probe.
-- **Stage 2** (invasive, editor-wide) -- [UnityRoslynUpdater](https://github.com/DaZombieKiller/UnityRoslynUpdater) replaces the editor's bundled Roslyn compiler and .NET runtime outright, unlocking C# syntax all the way to 14. This is what `ProbeExtensionMembers.cs` needs, and it is guarded accordingly -- see below.
+- **Stage 2** (invasive, editor-wide) -- [UnityRoslynUpdater](https://github.com/DaZombieKiller/UnityRoslynUpdater) replaces the editor's bundled Roslyn compiler and .NET runtime outright, unlocking C# syntax all the way to 14. This is what the C# 14 probes (`ProbeExtensionMembers.cs`, `ProbeFieldKeyword.cs`, `ProbeNullConditionalAssignment.cs`, `ProbeNameofUnboundGeneric.cs`, `ProbeFirstClassSpans.cs`) need, and they are guarded accordingly -- see below.
 
 Run Stage 1 first: reopen the project (or `Assets > Refresh`), right-click a probe component in the Inspector, and choose "Probe" from the context menu (or its gear icon), then read the Console for the `PASS`/`SKIP` line. Stage 2 is optional and separate; follow `docs/unity-lab-setup.md` section 4 if you choose to attempt it.
+
+To run every probe headlessly instead, use the editor-only runner in `Editor/ProbeRunner.cs`:
+
+```
+Unity -batchmode -nographics -projectPath unity -executeMethod Sharplings.Lab.Editor.ProbeRunner.RunAll -quit -logFile <file>
+```
+
+then read the `PASS`/`SKIP`/`FAIL` lines from the log.
 
 **JA:** 同じエディタ install の中でより新しい C# 構文を解禁する非公式の裏技が 2 つあり、リスクは段階的に上がります。
 
 - **Stage 1**（非侵襲、このフォルダ）—— `csc.rsp`（`-langversion:preview`）が、Unity 同梱の Roslyn が受け付ける言語バージョンを、この assembly 1 つに限定して引き上げます。エディタ install には触れません。`ProbeRawStrings.cs` と `ProbeCollectionExpressions.cs` が probe するのはこれです。
-- **Stage 2**（侵襲、エディタ全体）—— [UnityRoslynUpdater](https://github.com/DaZombieKiller/UnityRoslynUpdater) が、エディタ同梱の Roslyn コンパイラと .NET runtime をまるごと差し替え、C# 14 構文まで解禁します。`ProbeExtensionMembers.cs` が必要とするのはこれで、そのために下記の通り guard されています。
+- **Stage 2**（侵襲、エディタ全体）—— [UnityRoslynUpdater](https://github.com/DaZombieKiller/UnityRoslynUpdater) が、エディタ同梱の Roslyn コンパイラと .NET runtime をまるごと差し替え、C# 14 構文まで解禁します。C# 14 の probe（`ProbeExtensionMembers.cs`、`ProbeFieldKeyword.cs`、`ProbeNullConditionalAssignment.cs`、`ProbeNameofUnboundGeneric.cs`、`ProbeFirstClassSpans.cs`）が必要とするのはこれで、そのために下記の通り guard されています。
 
 まず Stage 1 を試してください。project を開き直す（または `Assets > Refresh`）、Inspector で probe component を右クリックし、コンテキストメニュー（または歯車アイコン）から「Probe」を選ぶと、Console に `PASS`/`SKIP` の行が出ます。Stage 2 は任意かつ別個の手順です。試す場合は `docs/unity-lab-setup.md` の 4 節に従ってください。
+
+すべての probe を headless で一括実行するには、`Editor/ProbeRunner.cs` にある editor 専用の runner を使います:
+
+```
+Unity -batchmode -nographics -projectPath unity -executeMethod Sharplings.Lab.Editor.ProbeRunner.RunAll -quit -logFile <file>
+```
+
+実行後、log の `PASS`/`SKIP`/`FAIL` 行を読んでください。
 
 ## The lab-notebook contract
 
@@ -28,7 +44,7 @@ Run Stage 1 first: reopen the project (or `Assets > Refresh`), right-click a pro
 
 ## The `SHARPLINGS_STAGE2` guard
 
-**EN:** `ProbeExtensionMembers.cs` targets C# 14 (extension members), which the bundled Roslyn 4.10.0 cannot parse at all -- not C# 12/13-ish-but-rejected, but genuinely unparseable syntax. To keep this file compiling at Stage 1 anyway, its extension block and the code that calls it are wrapped in `#if SHARPLINGS_STAGE2 ... #endif`. A preprocessor branch that resolves false is only *lexed* by the compiler, never *parsed* -- so C# 14 syntax sitting inside a disabled branch is safe, even on a compiler that would reject that same syntax if it were active. `SHARPLINGS_STAGE2` has been live in this folder's `csc.rsp` since 2026-07-12, when the Stage 2 swap landed Roslyn 5.6.0 (see `docs/feature-matrix.md`, "Stage 2 results"). The sequence that got here -- and to repeat after any editor update reverts the swap -- is:
+**EN:** `ProbeExtensionMembers.cs` targets C# 14 (extension members), which the bundled Roslyn 4.10.0 cannot parse at all -- not C# 12/13-ish-but-rejected, but genuinely unparseable syntax. To keep this file compiling at Stage 1 anyway, its extension block and the code that calls it are wrapped in `#if SHARPLINGS_STAGE2 ... #endif`. A preprocessor branch that resolves false is only *lexed* by the compiler, never *parsed* -- so C# 14 syntax sitting inside a disabled branch is safe, even on a compiler that would reject that same syntax if it were active. The other C# 14 probes in this folder wrap their feature code in the same guard. `SHARPLINGS_STAGE2` has been live in this folder's `csc.rsp` since 2026-07-12, when the Stage 2 swap landed Roslyn 5.6.0 (see `docs/feature-matrix.md`, "Stage 2 results"). The sequence that got here -- and to repeat after any editor update reverts the swap -- is:
 
 1. Complete a Stage 2 Roslyn swap (`docs/unity-lab-setup.md`, section 4).
 2. Add `-define:SHARPLINGS_STAGE2` as a second line to this folder's `csc.rsp`.
@@ -36,7 +52,7 @@ Run Stage 1 first: reopen the project (or `Assets > Refresh`), right-click a pro
 
 If an editor update silently restores the stock Roslyn (it does -- see `docs/unity-lab-setup.md`, section 4), remove the `-define:SHARPLINGS_STAGE2` line until the swap is redone -- keeping the define active against a compiler that still cannot parse the guarded branch reintroduces the exact failure the guard exists to prevent.
 
-**JA:** `ProbeExtensionMembers.cs` は C# 14（extension member）を対象としており、同梱の Roslyn 4.10.0 はこれをそもそも構文解析できません -- 「C# 12/13 相当だが拒否される」のではなく、本当に parse 不能な構文です。それでもこのファイルを Stage 1 の段階でコンパイルできるようにするため、extension block とそれを呼び出すコードは `#if SHARPLINGS_STAGE2 ... #endif` で包んでいます。プリプロセッサの分岐が false に解決される場合、コンパイラはその中身を *lex（字句解析）* するだけで *parse（構文解析）* しません -- そのため、無効な分岐の中にある C# 14 構文は、それが有効化されたら拒否するはずのコンパイラの上でも安全です。`SHARPLINGS_STAGE2` は 2026-07-12、Stage 2 の swap で Roslyn 5.6.0 が入った時点から、このフォルダの `csc.rsp` で有効になっています（`docs/feature-matrix.md` の「Stage 2 results」を参照）。ここへ至った手順 -- そしてエディタ更新が swap を元に戻したあとにやり直す手順 -- は次の通りです。
+**JA:** `ProbeExtensionMembers.cs` は C# 14（extension member）を対象としており、同梱の Roslyn 4.10.0 はこれをそもそも構文解析できません -- 「C# 12/13 相当だが拒否される」のではなく、本当に parse 不能な構文です。それでもこのファイルを Stage 1 の段階でコンパイルできるようにするため、extension block とそれを呼び出すコードは `#if SHARPLINGS_STAGE2 ... #endif` で包んでいます。プリプロセッサの分岐が false に解決される場合、コンパイラはその中身を *lex（字句解析）* するだけで *parse（構文解析）* しません -- そのため、無効な分岐の中にある C# 14 構文は、それが有効化されたら拒否するはずのコンパイラの上でも安全です。このフォルダの他の C# 14 probe も、機能コードを同じ guard で包んでいます。`SHARPLINGS_STAGE2` は 2026-07-12、Stage 2 の swap で Roslyn 5.6.0 が入った時点から、このフォルダの `csc.rsp` で有効になっています（`docs/feature-matrix.md` の「Stage 2 results」を参照）。ここへ至った手順 -- そしてエディタ更新が swap を元に戻したあとにやり直す手順 -- は次の通りです。
 
 1. Stage 2 の Roslyn 差し替えを完了させます（`docs/unity-lab-setup.md` の 4 節）。
 2. このフォルダの `csc.rsp` に、2 行目として `-define:SHARPLINGS_STAGE2` を追加します。

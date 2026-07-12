@@ -1,0 +1,11 @@
+{
+    "name": "Sharplings.Lab.Editor",
+    "rootNamespace": "Sharplings.Lab.Editor",
+    "references": [
+        "Sharplings.Lab"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": false
+}
