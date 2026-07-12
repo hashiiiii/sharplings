@@ -224,7 +224,17 @@ namespace Sharplings.Lab.Editor
             string output = ArgOrEnv("-buildOutput", "SHARPLINGS_BUILD_OUTPUT")
                 ?? Path.Combine(Path.GetTempPath(), "sharplings-coreclr-player", "Lab.app");
             string scenePath = "Assets/Lab/ProbeBootstrap.unity";
+            var std = NamedBuildTarget.Standalone;
 
+            // SetScriptingBackend / SetManagedStrippingLevel write to the
+            // git-tracked ProjectSettings.asset. Capture the originals and
+            // restore them so the repo is left untouched (acceptance criterion:
+            // changes stay in Assets/Lab + docs). Restore happens in finally and
+            // Exit is called AFTER finally — calling Exit inside try would kill
+            // the process before the restore runs.
+            ScriptingImplementation originalBackend = PlayerSettings.GetScriptingBackend(std);
+            ManagedStrippingLevel originalStripping = PlayerSettings.GetManagedStrippingLevel(std);
+            int exitCode = 1;
             try
             {
                 var scene = EditorSceneManager.NewScene(
@@ -234,8 +244,12 @@ namespace Sharplings.Lab.Editor
                 EditorSceneManager.SaveScene(scene, scenePath);
 
                 // Backend selection confirmed in Task 1.
-                PlayerSettings.SetScriptingBackend(
-                    NamedBuildTarget.Standalone, ScriptingImplementation.CoreCLR);
+                PlayerSettings.SetScriptingBackend(std, ScriptingImplementation.CoreCLR);
+                // Probes are referenced only by reflection and sit on no scene
+                // object, so managed code stripping can drop them from the player
+                // (silent "running 0 probe(s)"). Disable stripping for this build
+                // so ProbeRuntimeRunner finds every probe.
+                PlayerSettings.SetManagedStrippingLevel(std, ManagedStrippingLevel.Disabled);
 
                 var options = new BuildPlayerOptions
                 {
@@ -246,13 +260,16 @@ namespace Sharplings.Lab.Editor
                 };
                 BuildReport report = BuildPipeline.BuildPlayer(options);
                 Debug.Log($"BUILD: result={report.summary.result} output={output}");
-                EditorApplication.Exit(
-                    report.summary.result == BuildResult.Succeeded ? 0 : 1);
+                exitCode = report.summary.result == BuildResult.Succeeded ? 0 : 1;
             }
             finally
             {
                 AssetDatabase.DeleteAsset(scenePath);
+                PlayerSettings.SetScriptingBackend(std, originalBackend);
+                PlayerSettings.SetManagedStrippingLevel(std, originalStripping);
+                AssetDatabase.SaveAssets();
             }
+            EditorApplication.Exit(exitCode);
         }
 
         private static string ArgOrEnv(string argName, string envName)
@@ -278,9 +295,10 @@ rm -rf "$TMPDIR/sharplings-coreclr-player"
   -executeMethod Sharplings.Lab.Editor.PlayerBuilder.BuildCoreCLR \
   -buildOutput "$OUT" -logFile "$LOG"
 grep -E "BUILD:|error CS" "$LOG"; test -d "$OUT" && echo "APP EXISTS"
+git status --porcelain -- unity/ProjectSettings ':!unity/Assets/Lab' ':!docs'
 ```
 
-Expected: `BUILD: result=Succeeded ...` and `APP EXISTS`. If the build fails on the backend line, correct it per the Task 1 finding and rerun.
+Expected: `BUILD: result=Succeeded ...` and `APP EXISTS`. The `git status` line must print nothing — the save/restore in `BuildCoreCLR` must leave `ProjectSettings.asset` (and everything outside `Assets/Lab` + `docs`) unchanged. If it prints a diff, the restore failed; do not proceed. If the build fails on the backend line, correct it per the Task 1 finding and rerun.
 
 - [ ] **Step 3: Commit**
 
@@ -306,10 +324,11 @@ OUT="$TMPDIR/sharplings-coreclr-player/Lab.app"
 BIN="$(ls "$OUT/Contents/MacOS/"* | head -1)"
 PLOG="$TMPDIR/sharplings-player.log"
 "$BIN" -batchmode -nographics -logFile "$PLOG"
-grep -E "PASS:|SKIP:|FAIL:" "$PLOG"
+grep -E "running [0-9]+ probe|PASS:|SKIP:|FAIL:" "$PLOG"
+echo "PASS count: $(grep -c 'PASS:' "$PLOG")"
 ```
 
-Expected: seven `PASS:` lines (5 C# 14 + 2 Stage 1 probes) with correct runtime values, e.g. `PASS: extension members (C# 14) compiled. value.Doubled = 42`. Zero `SKIP:`/`FAIL:`.
+Expected: `ProbeRuntimeRunner: running 7 probe(s).` and exactly seven `PASS:` lines (5 C# 14 + 2 Stage 1 probes) with correct runtime values, e.g. `PASS: extension members (C# 14) compiled. value.Doubled = 42`. Zero `SKIP:`/`FAIL:`. A `running 0 probe(s)` line means managed stripping dropped the probes despite Task 3's guard — investigate before recording, do not treat it as a probe failure. Note: unlike editor batchmode, `-nographics` on a standalone player is not a guaranteed headless no-op; if the launch hangs on graphics init rather than running probes, that is a launch issue, not a probe failure — troubleshoot the headless launch first.
 
 - [ ] **Step 2: Record results in the feature matrix**
 
@@ -498,7 +517,7 @@ LOG="$TMPDIR/sharplings-frontier-editor.log"
 grep -E "error CS|PASS: inline arrays|FAIL: ProbeInlineArrays" "$LOG"
 ```
 
-Record the exact outcome: compiles + PASS, compiles + FAIL (runtime), or `error CSxxxx` (does not compile). Any of the three is a valid recorded result.
+Record the exact outcome: compiles + PASS, compiles + FAIL (runtime), or `error CSxxxx` (does not compile). Any of the three is a valid recorded result. Note: the inline-arrays probe's `foreach` over the inline-array struct may itself need BCL support absent from .NET Standard 2.1; a compile error at that line is the expected "does not compile (BCL gap)" finding for that feature, not a probe-authoring bug to chase.
 
 - [ ] **Step 3: Build and run the CoreCLR player (only if Step 2 compiled)**
 
@@ -774,7 +793,7 @@ git commit -m "feat: add polysharp handler and caller-expr probes"
 
 ## Self-Review
 
-**Spec coverage:** A0 spike → Task 1; A1 harness → Task 2; A2 build → Task 3; A2 run+record → Task 4; A3 frontier probes → Tasks 5–6; B1 install → Task 7; B2 smoke → Task 8; B2 remaining features → Task 9. Acceptance criteria for both tracks map to Tasks 4/6 (A) and 8/9 (B). Cross-cutting isolation/recording constraints are in Global Constraints.
+**Spec coverage:** A0 spike → Task 1; A1 harness → Task 2; A2 build → Task 3; A2 run+record → Task 4; A3 frontier probes → Tasks 5–6; B1 install → Task 7; B2 smoke → Task 8; B2 remaining features → Task 9. Acceptance criteria for both tracks map to Tasks 4/6 (A) and 8/9 (B). Cross-cutting isolation/recording constraints are in Global Constraints. The "changes stay in Assets/Lab + docs" criterion is enforced concretely in Task 3: `BuildCoreCLR` saves and restores the git-tracked `ProjectSettings.asset` fields it mutates (scripting backend, managed stripping level), and Task 3 Step 2 asserts `git status` is clean outside `Assets/Lab` + `docs`.
 
 **Placeholder scan:** No TBD/TODO. The one conditional is Task 3's `SetScriptingBackend` line, explicitly resolved by Task 1's Interfaces and flagged inline.
 
