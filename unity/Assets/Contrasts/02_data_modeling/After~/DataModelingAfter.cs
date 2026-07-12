@@ -10,11 +10,13 @@ namespace Contrasts.DataModeling
     // it invisible to Unity's asset pipeline, so it is never imported or
     // compiled by the project as it stands today.
     //
-    // Mirrors Before/DataModelingBefore.cs behavior 1:1 -- same
-    // Debug.Log lines for "potions"/"potions after pickup" -- plus the
-    // extra value-equality/`required` demonstration this modern shape
-    // enables. See README.md's honest note about the Unity serializer
-    // before reusing this shape for Inspector-exposed data.
+    // Mirrors Before/DataModelingBefore.cs -- same Debug.Log lines for
+    // "potions"/"potions after pickup" -- with one intentional ordering
+    // divergence: the equality comparison is logged BEFORE the pickup
+    // (where record value equality observably prints True), plus once
+    // more after it (False). See Run() and README.md. Also see
+    // README.md's honest note about the Unity serializer before reusing
+    // this shape for Inspector-exposed data.
 
     // A record: value equality and immutability by default, positional
     // deconstruction. Compare with ItemStackBefore above.
@@ -40,15 +42,25 @@ namespace Contrasts.DataModeling
 
             Debug.Log($"potions: {potions.Id} x{potions.Count}");
 
+            // Value equality out of the box -- no hand-written Equals/==.
+            // Compared HERE, while the data still matches, both lines
+            // print True; Before's reference-equality version prints
+            // False for the same data no matter where the check sits.
+            // (Intentional divergence from the strict 1:1 mirror: Before
+            // logs its comparison only after the pickup -- see README.md.)
+            Debug.Log($"potions == potionsAgain: {potions == potionsAgain}");
+            Debug.Log($"potions.Equals(potionsAgain): {potions.Equals(potionsAgain)}");
+
             // Records are immutable by default: "picking up one more"
             // produces a new value via `with`, instead of mutating the
             // original in place.
             potions = potions with { Count = potions.Count + 1 };
             Debug.Log($"potions after pickup: {potions.Id} x{potions.Count}");
 
-            // Value equality out of the box -- no hand-written Equals/==.
-            Debug.Log($"potions == potionsAgain: {potions == potionsAgain}");
-            Debug.Log($"potions.Equals(potionsAgain): {potions.Equals(potionsAgain)}");
+            // Now the data no longer matches, so the same comparison is
+            // False -- the `with` expression changed this copy's data,
+            // not the equality semantics.
+            Debug.Log($"potions == potionsAgain (after pickup): {potions == potionsAgain}");
 
             // `required` + `init`: the compiler enforces that every
             // required member is set at construction (via object

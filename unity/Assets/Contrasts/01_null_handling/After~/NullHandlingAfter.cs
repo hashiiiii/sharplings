@@ -25,6 +25,10 @@ namespace Contrasts.NullHandling
             public int Score;
         }
 
+        // The `?` annotations exist for the standalone nullable-enabled
+        // csc verification of this file. In the project's default
+        // nullable-off context they produce CS8632 warnings (not errors)
+        // if this folder is ever activated.
         private DemoTarget? _target;
         private readonly Stats _liveStats = new() { Score = 10 };
         private readonly Stats? _missingStats = null; // intentionally null, for contrast

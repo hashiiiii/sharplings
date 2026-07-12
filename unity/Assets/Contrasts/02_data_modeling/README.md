@@ -54,6 +54,8 @@ public record ItemStackAfter(string Id, int Count);
 
 This one line gives you a constructor, `Deconstruct`, `ToString`, and -- the two things `Before` had to do without -- **value equality** (`potions == potionsAgain` is `true` when the data matches, no override needed) and **immutability by default** (there is no setter to mutate; "picking up one more" is `potions = potions with { Count = potions.Count + 1 };`, which produces a new value instead of changing the old one). `ItemSlotAfter` goes one step further with a `record struct` plus `required`/`init` members, for a small, frequently-copied value type where every field must be set at construction and never changed afterward.
 
+One intentional divergence from the strict 1:1 mirror: `Before` logs its equality comparison only after the pickup (where reference equality prints `False` regardless of position), while `After` logs it **before** the pickup -- the only place value equality can observably print `True` -- and then once more after it (`potions == potionsAgain (after pickup): False`), showing that the `with` expression changed this copy's data, not the equality semantics.
+
 **JA:** `After~/DataModelingAfter.cs` は同じ形を `record` として書き直します。
 
 ```csharp
@@ -61,6 +63,8 @@ public record ItemStackAfter(string Id, int Count);
 ```
 
 この 1 行だけで、constructor、`Deconstruct`、`ToString`、そして -- `Before` には無かった 2 つのもの -- **値の等価性**（データが一致すれば `potions == potionsAgain` は override 無しで `true` になります）と **既定での不変性**（mutate する setter が存在しません。「もう 1 つ拾う」は `potions = potions with { Count = potions.Count + 1 };` となり、古い値を変えるのではなく新しい値を作ります）が手に入ります。`ItemSlotAfter` はさらに一歩進んで、`record struct` と `required` / `init` member を組み合わせ、すべての field を construction 時に必ず設定し、以後は変更させない、小さく頻繁にコピーされる値型にしています。
+
+厳密な 1:1 mirror からの意図的な相違が 1 つあります。`Before` は等価性の比較を pickup の後にだけログ出力します（参照等価性は位置に関係なく `False` を出力します）が、`After` は pickup の **前** に -- 値の等価性が観測可能な形で `True` を出力できる唯一の場所です -- ログ出力し、さらにその後にもう一度出力します（`potions == potionsAgain (after pickup): False`）。これにより、`with` 式が変えたのはこのコピーのデータであって、等価性のセマンティクスではないことが分かります。
 
 ## Honest note: Unity's serializer does not handle records
 
