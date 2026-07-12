@@ -85,7 +85,7 @@ Unity project は `unity/` に存在します（Unity 6000.7.0a2、Universal tem
 - **`Contrasts/<topic>/`** —— 裏技不要の公式な Before/After 対。今日時点で 6 つの study があります。`Before/` には C# 9 の Unity イディオム（今日の 6.7 でコンパイル可）、`After~/` には最新 C# での書き換えが入ります。末尾の `~` に注目してください。`~` で終わるフォルダ・ファイルは Unity のコンパイルパイプラインから見えません（Unity 自身が隠しフォルダに使うのと同じ規約）。そのため `After~/` は project 内に存在していても、今日の build には影響しません。Unity 6.8 で C# 14 対応が来たら、`After~/` を `After/` に rename するだけで、そのまま有効になります。
 - **`Lab/`** —— 独立した `asmdef` とローカルの `csc.rsp` を持つ実験ゾーン。`unity-lab-setup.md` に書かれた裏技を使って、Unity 6.7 の公式サポート範囲を超えて試すための場所です。
 
-Stage 0（同梱 Roslyn コンパイラの probe）と Stage 1（Unity の build pipeline が assembly 単位の `csc.rsp` 言語バージョン上書きを実際に尊重することの確認）は、どちらも 2026-07-12 に実行済みです。要点: Unity の build pipeline は csc.rsp の言語バージョン上書きを尊重します——C# 11/12 構文は、今日すでに Lab の中でコンパイルできます。C# 14 にはまだ Unity 6.8 か、Stage 2 の Roslyn 差し替えが必要です。詳細は `docs/feature-matrix.md`（「Stage 1 results」）と `docs/unity-lab-setup.md` を参照してください。
+Stage 0（同梱 Roslyn コンパイラの probe）、Stage 1（Unity の build pipeline が assembly 単位の `csc.rsp` 言語バージョン上書きを実際に尊重することの確認）、そして Stage 2（同梱 Roslyn を .NET 10 SDK の Roslyn 5.6.0 へ差し替える swap）は、いずれも 2026-07-12 に実行済みです。要点: C# 11/12 構文は `csc.rsp` だけで Lab の中でコンパイルでき、Stage 2 の swap が有効な今は、C# 14 の extension member も Unity の中でコンパイルできます。swap は repo が持ち運ぶものではなくマシン側の状態です——エディタの更新で黙って元に戻ります——そして、swap 不要の公式な C# 14 対応が来るのは変わらず Unity 6.8 からです。詳細は `docs/feature-matrix.md`（「Stage 1 results」「Stage 2 results」）と `docs/unity-lab-setup.md` を参照してください。
 
 ## 7. Runner reference
 
