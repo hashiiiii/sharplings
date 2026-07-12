@@ -106,6 +106,10 @@ Both are unofficial: Unity doesn't support, test, or endorse either. Keep the ri
 
 3. 結果を記録します: `docs/feature-matrix.md` の `Compiles via csc.rsp?` 列にある `unverified (probe: Stage 0)` の各セルを、機能ごと（その機能の導入 C# バージョンと、`csc` が受け付けると報告した最高バージョンの比較）に、実際に判明した内容で更新してください。
 
+> **EN — Result (2026-07-12):** Stage 0 has been run against the installed 6000.7.0a2 editor. The bundled toolchain turned out to be a full .NET SDK 8.0.318 at `Unity.app/Contents/Resources/Scripting/DotNetSdk` (not the `DotNetSdkRoslyn` directory guessed above), with Roslyn 4.10.0 accepting `-langversion` up to 12.0 plus `preview`. Full evidence and the per-feature cell updates live in `docs/feature-matrix.md` under "Stage 0 probe results".
+>
+> **JA — 実施結果 (2026-07-12):** install 済みの 6000.7.0a2 editor に対して Stage 0 を実行済みです。同梱 toolchain は上で推測した `DotNetSdkRoslyn` ディレクトリではなく、`Unity.app/Contents/Resources/Scripting/DotNetSdk` にある丸ごとの .NET SDK 8.0.318 で、Roslyn 4.10.0 が `-langversion` を 12.0 まで（加えて `preview`）受け付けます。証跡の全文と機能別セルの更新は `docs/feature-matrix.md` の「Stage 0 probe results」を参照してください。
+
 ## 3. Stage 1 (non-invasive) — `Assets/Lab/csc.rsp`
 
 **EN:** Stage 1 is non-invasive: it adds exactly one file to the project and does not touch the Unity editor install itself.
