@@ -5,7 +5,7 @@
 Two columns are intentionally provisional right now:
 
 - **`CoreCLR player (6.7 exp)`** starts at `untested` for every row below. Nobody has run these features under Unity's experimental CoreCLR Desktop Player yet — answering that is the whole point of this lab notebook.
-- **`Compiles via csc.rsp?`** is now half-answered. The Stage 0 probe ran on 2026-07-12 (results below): the bundled Roslyn 4.10.0 accepts `-langversion` up to **12.0** (its own default) plus `preview` / `latest` / `latestmajor`. Cells therefore read `expected — accepts ≤ 12 (Stage 1)` for C# 10-12 features, `preview only, if at all (Stage 1)` for C# 13 features (Roslyn 4.10's `preview` predates final C# 13), `no — needs Stage 2 swap` for C# 14 features, and `langversion OK; compile expected to fail (runtime gap)` where the compiler itself demands runtime/BCL support Mono lacks. What Stage 0 cannot prove is whether Unity's build pipeline honors a `csc.rsp` language-version override in-editor — that is Stage 1, which still requires the Unity project to exist.
+- **`Compiles via csc.rsp?`** is now half-answered. The Stage 0 probe ran on 2026-07-12 (results below): the bundled Roslyn 4.10.0 accepts `-langversion` up to **12.0** (its own default) plus `preview` / `latest` / `latestmajor`. Cells therefore read `expected — accepts ≤ 12 (Stage 1)` for C# 10-12 features, `preview only, if at all (Stage 1)` for C# 13 features (Roslyn 4.10's `preview` predates final C# 13), `no — needs Stage 2 swap` for C# 14 features, and `langversion OK; compile expected to fail (runtime gap)` where the compiler itself demands runtime/BCL support Mono lacks. Stage 1 — whether Unity's build pipeline actually honors a `csc.rsp` language-version override in-editor — has since run and confirmed the override (2026-07-12, editor batchmode); see "Stage 1 results" below for the full evidence.
 
 Status legend used in the `Mono editor/player` column:
 
@@ -20,7 +20,7 @@ Status legend used in the `Mono editor/player` column:
 以下の 2 列は、現時点では意図的に未確定のままにしています。
 
 - **`CoreCLR player (6.7 exp)`** は、下表のすべての行で `untested` から始まります。実験的な CoreCLR Desktop Player でこれらの機能を実行した人はまだ誰もいません——それに答えることこそが、この lab notebook の存在理由です。
-- **`Compiles via csc.rsp?`** は半分だけ答えが出ました。Stage 0 の probe を 2026-07-12 に実行した結果（下記参照）、同梱の Roslyn 4.10.0 は `-langversion` を **12.0**（それ自身の default）まで受け付け、加えて `preview` / `latest` / `latestmajor` を受け付けます。そのため各セルは、C# 10〜12 の機能は `expected — accepts ≤ 12 (Stage 1)`、C# 13 の機能は `preview only, if at all (Stage 1)`（Roslyn 4.10 の `preview` は C# 13 確定より前の時点のもの）、C# 14 の機能は `no — needs Stage 2 swap`、そしてコンパイラ自身が Mono にない runtime / BCL サポートを要求する行は `langversion OK; compile expected to fail (runtime gap)` としています。Stage 0 で証明できないのは、Unity の build pipeline が editor 内で `csc.rsp` の言語バージョン上書きを実際に尊重するかどうかです——それが Stage 1 であり、Unity project の存在が必要です。
+- **`Compiles via csc.rsp?`** は半分だけ答えが出ました。Stage 0 の probe を 2026-07-12 に実行した結果（下記参照）、同梱の Roslyn 4.10.0 は `-langversion` を **12.0**（それ自身の default）まで受け付け、加えて `preview` / `latest` / `latestmajor` を受け付けます。そのため各セルは、C# 10〜12 の機能は `expected — accepts ≤ 12 (Stage 1)`、C# 13 の機能は `preview only, if at all (Stage 1)`（Roslyn 4.10 の `preview` は C# 13 確定より前の時点のもの）、C# 14 の機能は `no — needs Stage 2 swap`、そしてコンパイラ自身が Mono にない runtime / BCL サポートを要求する行は `langversion OK; compile expected to fail (runtime gap)` としています。Stage 1——Unity の build pipeline が editor 内で `csc.rsp` の言語バージョン上書きを実際に尊重するかどうか——は、その後実行され、上書きが尊重されることを確認済みです（2026-07-12、editor batchmode）。詳細は下記の「Stage 1 results」を参照してください。
 
 `Mono editor/player` 列で使うステータスの凡例:
 
