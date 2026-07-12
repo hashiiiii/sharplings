@@ -28,18 +28,18 @@ Run Stage 1 first: reopen the project (or `Assets > Refresh`), right-click a pro
 
 ## The `SHARPLINGS_STAGE2` guard
 
-**EN:** `ProbeExtensionMembers.cs` targets C# 14 (extension members), which the bundled Roslyn 4.10.0 cannot parse at all -- not C# 12/13-ish-but-rejected, but genuinely unparseable syntax. To keep this file compiling at Stage 1 anyway, its extension block and the code that calls it are wrapped in `#if SHARPLINGS_STAGE2 ... #endif`. A preprocessor branch that resolves false is only *lexed* by the compiler, never *parsed* -- so C# 14 syntax sitting inside a disabled branch is safe, even on a compiler that would reject that same syntax if it were active. `SHARPLINGS_STAGE2` is not defined anywhere today. The intended sequence is:
+**EN:** `ProbeExtensionMembers.cs` targets C# 14 (extension members), which the bundled Roslyn 4.10.0 cannot parse at all -- not C# 12/13-ish-but-rejected, but genuinely unparseable syntax. To keep this file compiling at Stage 1 anyway, its extension block and the code that calls it are wrapped in `#if SHARPLINGS_STAGE2 ... #endif`. A preprocessor branch that resolves false is only *lexed* by the compiler, never *parsed* -- so C# 14 syntax sitting inside a disabled branch is safe, even on a compiler that would reject that same syntax if it were active. `SHARPLINGS_STAGE2` has been live in this folder's `csc.rsp` since 2026-07-12, when the Stage 2 swap landed Roslyn 5.6.0 (see `docs/feature-matrix.md`, "Stage 2 results"). The sequence that got here -- and to repeat after any editor update reverts the swap -- is:
 
 1. Complete a Stage 2 Roslyn swap (`docs/unity-lab-setup.md`, section 4).
 2. Add `-define:SHARPLINGS_STAGE2` as a second line to this folder's `csc.rsp`.
 3. Reopen the project; `ProbeExtensionMembers.cs`'s guarded branch becomes live, and the probe actually exercises C# 14 syntax instead of logging `SKIP`.
 
-Until that happens, leave `csc.rsp` as `-langversion:preview` only -- adding the define before Stage 2 actually lands a C# 14-capable Roslyn would just make the guarded branch active against a compiler that still cannot parse it, reintroducing the exact failure the guard exists to prevent.
+If an editor update silently restores the stock Roslyn (it does -- see `docs/unity-lab-setup.md`, section 4), remove the `-define:SHARPLINGS_STAGE2` line until the swap is redone -- keeping the define active against a compiler that still cannot parse the guarded branch reintroduces the exact failure the guard exists to prevent.
 
-**JA:** `ProbeExtensionMembers.cs` は C# 14（extension member）を対象としており、同梱の Roslyn 4.10.0 はこれをそもそも構文解析できません -- 「C# 12/13 相当だが拒否される」のではなく、本当に parse 不能な構文です。それでもこのファイルを Stage 1 の段階でコンパイルできるようにするため、extension block とそれを呼び出すコードは `#if SHARPLINGS_STAGE2 ... #endif` で包んでいます。プリプロセッサの分岐が false に解決される場合、コンパイラはその中身を *lex（字句解析）* するだけで *parse（構文解析）* しません -- そのため、無効な分岐の中にある C# 14 構文は、それが有効化されたら拒否するはずのコンパイラの上でも安全です。`SHARPLINGS_STAGE2` は今日の時点でどこにも定義されていません。想定している手順は次の通りです。
+**JA:** `ProbeExtensionMembers.cs` は C# 14（extension member）を対象としており、同梱の Roslyn 4.10.0 はこれをそもそも構文解析できません -- 「C# 12/13 相当だが拒否される」のではなく、本当に parse 不能な構文です。それでもこのファイルを Stage 1 の段階でコンパイルできるようにするため、extension block とそれを呼び出すコードは `#if SHARPLINGS_STAGE2 ... #endif` で包んでいます。プリプロセッサの分岐が false に解決される場合、コンパイラはその中身を *lex（字句解析）* するだけで *parse（構文解析）* しません -- そのため、無効な分岐の中にある C# 14 構文は、それが有効化されたら拒否するはずのコンパイラの上でも安全です。`SHARPLINGS_STAGE2` は 2026-07-12、Stage 2 の swap で Roslyn 5.6.0 が入った時点から、このフォルダの `csc.rsp` で有効になっています（`docs/feature-matrix.md` の「Stage 2 results」を参照）。ここへ至った手順 -- そしてエディタ更新が swap を元に戻したあとにやり直す手順 -- は次の通りです。
 
 1. Stage 2 の Roslyn 差し替えを完了させます（`docs/unity-lab-setup.md` の 4 節）。
 2. このフォルダの `csc.rsp` に、2 行目として `-define:SHARPLINGS_STAGE2` を追加します。
 3. project を開き直すと、`ProbeExtensionMembers.cs` の guard された分岐が有効になり、probe は `SKIP` をログ出力する代わりに、実際に C# 14 構文を検証します。
 
-それが起きるまでは、`csc.rsp` を `-langversion:preview` のみのままにしておいてください -- Stage 2 が実際に C# 14 対応の Roslyn を導入する前に define を追加してしまうと、guard された分岐が、まだそれを構文解析できないコンパイラに対して有効になってしまい、その guard が防ぐはずだった失敗をそのまま再現することになります。
+エディタの更新は stock の Roslyn を黙って復元します（`docs/unity-lab-setup.md` の 4 節を参照）。その場合は、swap をやり直すまで `-define:SHARPLINGS_STAGE2` の行を削除してください -- guard された分岐を、まだそれを構文解析できないコンパイラに対して有効なままにしておくと、その guard が防ぐはずだった失敗をそのまま再現することになります。

@@ -1,1 +1,2 @@
 -langversion:preview
+-define:SHARPLINGS_STAGE2

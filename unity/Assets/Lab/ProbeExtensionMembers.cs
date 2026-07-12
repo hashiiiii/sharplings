@@ -16,12 +16,13 @@ namespace Sharplings.Lab
     //     it, are guarded by `#if SHARPLINGS_STAGE2`: a preprocessor
     //     branch that resolves false is only *lexed*, never *parsed*, so
     //     C# 14 syntax inside it cannot break compilation of this file,
-    //     or this assembly, today. `SHARPLINGS_STAGE2` is not defined
-    //     anywhere yet -- it is meant to be added to this folder's
-    //     `csc.rsp` (an extra `-define:SHARPLINGS_STAGE2` line) only
-    //     after Stage 2 actually swaps in a Roslyn build that
-    //     understands C# 14. Until then, `Probe()` below takes the
-    //     `#else` branch and logs that the probe was skipped. Record the
+    //     or this assembly, today. `SHARPLINGS_STAGE2` has been defined
+    //     in this folder's `csc.rsp` since 2026-07-12, when Stage 2
+    //     swapped in Roslyn 5.6.0 -- so the guarded branch below is
+    //     live. If an editor update silently restores the stock Roslyn,
+    //     remove that `-define` line until the swap is redone; `Probe()`
+    //     then falls back to the `#else` branch and logs that the probe
+    //     was skipped. Record the
     //     outcome (compiled or not, and the exact error if not) in the
     //     `Compiles via csc.rsp?` column of `docs/feature-matrix.md`,
     //     "Extension members (C# 14)" row.
@@ -37,12 +38,13 @@ namespace Sharplings.Lab
     //     中身は *lex（字句解析）* されるだけで *parse（構文解析）*
     //     されないため、内部の C# 14 構文が今日このファイル、この
     //     assembly のコンパイルを壊すことはありません。`SHARPLINGS_STAGE2`
-    //     はまだどこにも定義されていません -- これは、Stage 2 が実際に
-    //     C# 14 を理解する Roslyn build を差し替えたあとで初めて、この
-    //     フォルダの `csc.rsp` に（`-define:SHARPLINGS_STAGE2` という
-    //     追加の行として）加えることを想定しています。それまでは、下の
-    //     `Probe()` は `#else` 分岐を通り、probe を skip した旨を
-    //     ログ出力します。結果（コンパイルできたか、できなかった場合は
+    //     は 2026-07-12、Stage 2 が Roslyn 5.6.0 を差し替えた時点から、
+    //     このフォルダの `csc.rsp` で定義されています -- そのため、下の
+    //     guard された分岐は現在有効です。エディタの更新が stock の
+    //     Roslyn を黙って復元した場合は、swap をやり直すまでその
+    //     `-define` 行を削除してください。そのとき `Probe()` は `#else`
+    //     分岐に戻り、probe を skip した旨をログ出力します。結果
+    //     （コンパイルできたか、できなかった場合は
     //     正確なエラー内容）は `docs/feature-matrix.md` の
     //     `Compiles via csc.rsp?` 列、「Extension members (C# 14)」行に
     //     記録してください。
