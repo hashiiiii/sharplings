@@ -49,8 +49,9 @@ namespace Sharplings.Lab
             }
             catch (Exception exception)
             {
-                // A failure in the reflection scan itself (e.g. ReflectionTypeLoadException
-                // under managed stripping) must not skip the Quit below.
+                // Log a scan-time failure (e.g. ReflectionTypeLoadException under
+                // managed stripping) instead of letting it propagate unhandled;
+                // the finally below still guarantees the player exits either way.
                 Debug.Log($"FAIL: ProbeRuntimeRunner scan threw: {exception}");
             }
             finally
