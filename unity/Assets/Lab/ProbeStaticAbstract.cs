@@ -8,9 +8,11 @@ namespace Sharplings.Lab
     // Uses a custom interface (no BCL generic-math dependency) so the signal
     // isolates the runtime feature -- static virtual/abstract interface dispatch.
     // This is a runtime capability, not an attribute, so PolySharp does not affect
-    // it. Whether the Stage 2 Roslyn 5.6.0 compiles it and whether the Mono editor
-    // runtime dispatches it correctly is what this probe measures. Record the
-    // empirical outcome.
+    // it. Mono editor result (Stage 2 Roslyn 5.6.0, 2026-07-13): does NOT compile
+    // -- CS8919, "Target runtime doesn't support static abstract members in
+    // interfaces"; the compiler itself refuses. Expected to compile and run on the
+    // CoreCLR Desktop Player and Unity 6.8 -- the open case this guarded probe
+    // exists to exercise.
     public class ProbeStaticAbstract : MonoBehaviour
     {
         [ContextMenu("Probe")]

@@ -4,14 +4,13 @@ namespace Sharplings.Lab
 {
     // Frontier probe: inline arrays (C# 12), guarded by SHARPLINGS_INLINE_ARRAYS.
     //
-    // Runtime-dependent feature. Two things must line up for it to work: (1) the
-    // compiler must see System.Runtime.CompilerServices.InlineArrayAttribute, and
-    // (2) the runtime must honor the inline-array memory layout. PolySharp is now
-    // active on this assembly (a RoslynAnalyzer scoped to Sharplings.Lab), so it
-    // MAY source-generate the attribute in (1) -- which means, unlike the pre-
-    // PolySharp assumption, this may actually COMPILE. Whether it compiles, and if
-    // so whether the Mono editor runtime yields correct values (2), is what this
-    // probe measures. Record the empirical outcome; do not assume a compile error.
+    // Runtime-dependent feature. Mono editor result (Stage 2 Roslyn 5.6.0,
+    // 2026-07-13): does NOT compile -- CS0234, because
+    // System.Runtime.CompilerServices.InlineArrayAttribute is absent from Mono's
+    // .NET Standard 2.1 BCL, and PolySharp (active on this assembly) does not
+    // polyfill it. It is expected to compile and run on the CoreCLR Desktop Player
+    // and Unity 6.8 (a real .NET runtime with the attribute and the inline-array
+    // layout) -- the open case this guarded probe exists to exercise.
     public class ProbeInlineArrays : MonoBehaviour
     {
         [ContextMenu("Probe")]

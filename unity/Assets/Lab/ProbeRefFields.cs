@@ -5,12 +5,11 @@ namespace Sharplings.Lab
     // Frontier probe: ref fields (C# 11), guarded by SHARPLINGS_REF_FIELDS.
     //
     // A ref field in a ref struct (`public ref int Value;`) is a pure
-    // language + runtime feature -- there is no attribute PolySharp can supply to
-    // make it work, so PolySharp does not change this probe's outcome. It needs
-    // the runtime's byref-field support, which Mono is not expected to have.
-    // Whether the Stage 2 Roslyn 5.6.0 compiles it against Unity's .NET Standard
-    // 2.1 reference assemblies, and whether the Mono editor runtime then runs it,
-    // is what this probe measures. Record the empirical outcome.
+    // language + runtime feature -- no attribute PolySharp can supply makes it
+    // work. Mono editor result (Stage 2 Roslyn 5.6.0, 2026-07-13): does NOT
+    // compile -- CS9064, "Target runtime doesn't support ref fields"; the compiler
+    // itself refuses. Expected to compile and run on the CoreCLR Desktop Player
+    // and Unity 6.8 -- the open case this guarded probe exists to exercise.
     public class ProbeRefFields : MonoBehaviour
     {
         [ContextMenu("Probe")]
