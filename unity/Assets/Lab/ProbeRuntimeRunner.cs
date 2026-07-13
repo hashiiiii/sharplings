@@ -14,38 +14,51 @@ namespace Sharplings.Lab
     {
         private void Start()
         {
-            var probeTypes = typeof(ProbeRuntimeRunner).Assembly
-                .GetTypes()
-                .Where(type => !type.IsAbstract
-                    && type != typeof(ProbeRuntimeRunner)
-                    && typeof(MonoBehaviour).IsAssignableFrom(type))
-                .OrderBy(type => type.Name)
-                .ToArray();
-
-            Debug.Log($"ProbeRuntimeRunner: running {probeTypes.Length} probe(s).");
-
-            foreach (var type in probeTypes)
+            try
             {
-                var probe = type.GetMethod("Probe",
-                    BindingFlags.Instance | BindingFlags.NonPublic);
-                if (probe == null)
-                {
-                    Debug.Log($"NO-PROBE: {type.Name} has no private Probe(); skipped.");
-                    continue;
-                }
+                var probeTypes = typeof(ProbeRuntimeRunner).Assembly
+                    .GetTypes()
+                    .Where(type => !type.IsAbstract
+                        && type != typeof(ProbeRuntimeRunner)
+                        && typeof(MonoBehaviour).IsAssignableFrom(type))
+                    .OrderBy(type => type.Name)
+                    .ToArray();
 
-                var component = gameObject.AddComponent(type);
-                try
+                Debug.Log($"ProbeRuntimeRunner: running {probeTypes.Length} probe(s).");
+
+                foreach (var type in probeTypes)
                 {
-                    probe.Invoke(component, null);
-                }
-                catch (Exception exception)
-                {
-                    Debug.Log($"FAIL: {type.Name}.Probe() threw: {exception.InnerException ?? exception}");
+                    var probe = type.GetMethod("Probe",
+                        BindingFlags.Instance | BindingFlags.NonPublic);
+                    if (probe == null)
+                    {
+                        Debug.Log($"NO-PROBE: {type.Name} has no private Probe(); skipped.");
+                        continue;
+                    }
+
+                    try
+                    {
+                        var component = gameObject.AddComponent(type);
+                        probe.Invoke(component, null);
+                    }
+                    catch (Exception exception)
+                    {
+                        Debug.Log($"FAIL: {type.Name}.Probe() threw: {exception.InnerException ?? exception}");
+                    }
                 }
             }
-
-            Application.Quit(0);
+            catch (Exception exception)
+            {
+                // A failure in the reflection scan itself (e.g. ReflectionTypeLoadException
+                // under managed stripping) must not skip the Quit below.
+                Debug.Log($"FAIL: ProbeRuntimeRunner scan threw: {exception}");
+            }
+            finally
+            {
+                // Always exit the headless player, even if the scan or an
+                // AddComponent throws — otherwise a batchmode player hangs.
+                Application.Quit(0);
+            }
         }
     }
 }
